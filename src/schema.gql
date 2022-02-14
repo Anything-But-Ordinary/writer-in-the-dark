@@ -2,6 +2,17 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type Admin {
+  name: String!
+  isActive: Boolean
+  password: String!
+  adminName: String!
+}
+
 type Query {
-  isAdmin: Boolean!
+  admins(active: Boolean!): [Admin!]!
+}
+
+type Mutation {
+  createAdmin(name: String!, isActive: Boolean!, password: String!, adminName: String!): Boolean!
 }
