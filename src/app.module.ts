@@ -3,9 +3,9 @@ import { Module } from '@nestjs/common';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { join } from 'path';
 import * as Joi from 'joi';
-import { AdminsModule } from './admins/admins.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -38,7 +38,7 @@ import { ConfigModule } from '@nestjs/config';
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       // autoSchemaFile: true,
     }),
-    AdminsModule,
+    UserModule,
   ],
   controllers: [],
   providers: [],
