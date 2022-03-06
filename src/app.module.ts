@@ -6,6 +6,9 @@ import * as Joi from 'joi';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
+import { CommonModule } from './common/common.module';
+import { User } from './users/entities/user.entity';
+import { FooResolver } from './users/foo.resolver';
 
 @Module({
   imports: [
@@ -31,16 +34,17 @@ import { UsersModule } from './users/users.module';
       database: process.env.DB_NAME,
       logging: true,
       synchronize: true,
-      entities: [],
+      entities: [User],
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
-      autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
-      // autoSchemaFile: true,
+      // autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+      autoSchemaFile: true,
     }),
     UsersModule,
+    CommonModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [FooResolver],
 })
 export class AppModule {}
