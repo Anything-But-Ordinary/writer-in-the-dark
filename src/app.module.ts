@@ -5,8 +5,7 @@ import { join } from 'path';
 import * as Joi from 'joi';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
-import { UserModule } from './user/user.module';
-import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -39,8 +38,7 @@ import { AuthModule } from './auth/auth.module';
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       // autoSchemaFile: true,
     }),
-    UserModule,
-    AuthModule,
+    UsersModule,
   ],
   controllers: [],
   providers: [],
