@@ -1,18 +1,16 @@
 import { Injectable } from '@nestjs/common';
+import { Query } from '@nestjs/graphql';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import * as jwt from 'jsonwebtoken';
+import { JwtService } from '../jwt/jwt.service';
 import { CreateAccountInput } from './dtos/create-account.dto';
 import { LoginInput } from './dtos/login.dto';
 import { User } from './entities/user.entity';
-import { ConfigService } from '@nestjs/config';
-import { JwtService } from '../jwt/jwt.service';
 
 @Injectable()
 export class UsersSerivce {
   constructor(
     @InjectRepository(User) private readonly users: Repository<User>,
-    private readonly config: ConfigService,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -55,7 +53,7 @@ export class UsersSerivce {
           error: 'Wrong password',
         };
       }
-      const token = jwt.sign({ id: user.id }, this.config.get('SECRET_KEY'));
+      const token = this.jwtService.sign(user.id);
       return {
         ok: true,
         token,
@@ -66,7 +64,9 @@ export class UsersSerivce {
         error,
       };
     }
+  }
 
-    // make the jwt and give it to the user
+  async findById(id: number): Promise<User> {
+    return this.users.findOne({ id });
   }
 }
