@@ -12,6 +12,7 @@ import * as Joi from 'joi';
 import { JwtMiddleware } from './jwt/jwt.middleware';
 import { JwtModule } from './jwt/jwt.module';
 import { User } from './users/entities/user.entity';
+import { Verification } from './users/entities/verification.entities';
 import { FooResolver } from './users/foo.resolver';
 import { UsersModule } from './users/users.module';
 
@@ -40,7 +41,7 @@ import { UsersModule } from './users/users.module';
       database: process.env.DB_NAME,
       logging: true,
       synchronize: true,
-      entities: [User],
+      entities: [User, Verification],
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,

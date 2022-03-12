@@ -35,6 +35,10 @@ export class User extends CoreEntity {
   @IsEnum(Who)
   who: Who;
 
+  @Column({ default: false })
+  @Field(() => Boolean)
+  verified: boolean;
+
   @BeforeInsert()
   @BeforeUpdate()
   async hashPassword(): Promise<void> {
