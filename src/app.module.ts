@@ -1,10 +1,15 @@
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
+import { FooResolver } from './foo.resolver';
+import { UsersModule } from './users/users.module';
+import { TypegooseModule } from 'nestjs-typegoose';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
+    TypegooseModule.forRoot('mongodb://localhost/writer'),
     ConfigModule.forRoot({
       isGlobal: true,
     }),
@@ -12,12 +17,10 @@ import { GraphQLModule } from '@nestjs/graphql';
       driver: ApolloDriver,
       autoSchemaFile: true,
     }),
+    UsersModule,
+    AuthModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [FooResolver],
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    throw new Error('Method not implemented.');
-  }
-}
+export class AppModule {}
