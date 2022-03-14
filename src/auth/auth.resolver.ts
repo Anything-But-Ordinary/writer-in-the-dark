@@ -2,7 +2,12 @@ import { Args, Mutation, Resolver } from '@nestjs/graphql';
 import { UsersService } from '../users/users.service';
 import { RegisterInput, RegisterResponse } from './dtos/register.dto';
 import * as bcrypt from 'bcryptjs';
-import { BadRequestException, HttpException } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  NotFoundException,
+} from '@nestjs/common';
+import { LoginInput, LoginResponse } from './dtos/login.dto';
 
 @Resolver()
 export class AuthResolver {
@@ -32,6 +37,24 @@ export class AuthResolver {
 
     return {
       isRegister: true,
+    };
+  }
+
+  @Mutation(() => LoginResponse)
+  async login(@Args('input') loginInput: LoginInput): Promise<LoginResponse> {
+    const { email, password } = loginInput;
+    const user = await this.usersService.findOne({ email });
+
+    if (!user) {
+      throw new NotFoundException('User Not Found');
+    }
+
+    if (!(await bcrypt.compare(password, user.password))) {
+      throw new BadRequestException('Invaild credential');
+    }
+
+    return {
+      isLogin: true,
     };
   }
 }
