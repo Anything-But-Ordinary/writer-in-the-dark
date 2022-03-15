@@ -16,8 +16,10 @@ import {
 } from '@nestjs/common';
 import { LoginInput, LoginResponse } from './dtos/login.dto';
 import { JwtService } from '@nestjs/jwt';
-import { Response, response } from 'express';
+import { Response, response, Request } from 'express';
 import { MyContext } from '../types';
+import { User } from '../models/user.model';
+import { WhoResponse } from './dtos/who.dto';
 
 @Resolver()
 export class AuthResolver {
@@ -59,7 +61,9 @@ export class AuthResolver {
     @Context('res') res: Response,
   ): Promise<LoginResponse> {
     const { email, password } = loginInput;
-    const user = await this.usersService.findOne({ email });
+    const user = await this.usersService.findOneAndSelect({ email });
+
+    // console.log(user.password);
 
     if (!user) {
       throw new NotFoundException('User Not Found');
@@ -82,6 +86,39 @@ export class AuthResolver {
     return {
       isLogin: true,
       jwt,
+    };
+  }
+
+  @Mutation(() => WhoResponse)
+  async user(@Context('req') req: Request): Promise<WhoResponse> {
+    const cookie = req.cookies['jwt'];
+
+    if (!cookie) {
+      return {
+        isAuthed: false,
+        username: null,
+        message: 'you must have a jwt first',
+      };
+    }
+
+    const { id } = await this.jwtService.verifyAsync(cookie);
+
+    const user = await this.usersService.findOne({ id });
+
+    console.log(user);
+
+    if (!user) {
+      return {
+        isAuthed: false,
+        username: null,
+        message: 'The jwt is not who you login it now',
+      };
+    }
+
+    return {
+      isAuthed: true,
+      username: user.username,
+      message: 'Yep, You are authed',
     };
   }
 }

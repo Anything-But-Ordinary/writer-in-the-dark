@@ -1,5 +1,6 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { ModelOptions, prop } from '@typegoose/typegoose';
+import * as bcrypt from 'bcryptjs';
 
 @ObjectType()
 @ModelOptions({
@@ -17,6 +18,15 @@ export class User {
   email: string;
 
   @Field(() => String)
-  @prop({ required: true })
-  password: string;
+  @prop({
+    select: false,
+    required: true,
+    // get(val) {
+    //   return val;
+    // },
+    // set(val) {
+    //   return bcrypt.hashSync(val, 12);
+    // },
+  })
+  password!: string;
 }
