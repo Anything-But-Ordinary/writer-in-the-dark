@@ -13,4 +13,7 @@ export class LoginInput {
 export class LoginResponse {
   @Field(() => Boolean)
   isLogin: boolean;
+
+  @Field(() => String, { nullable: true })
+  jwt?: string;
 }

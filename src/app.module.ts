@@ -6,6 +6,7 @@ import { FooResolver } from './foo.resolver';
 import { UsersModule } from './users/users.module';
 import { TypegooseModule } from 'nestjs-typegoose';
 import { AuthModule } from './auth/auth.module';
+import { response } from 'express';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { AuthModule } from './auth/auth.module';
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: true,
+      context: ({ req, res }) => ({ req, res }),
     }),
     UsersModule,
     AuthModule,
