@@ -101,24 +101,29 @@ export class AuthResolver {
       };
     }
 
-    const { id } = await this.jwtService.verifyAsync(cookie);
+    try {
+      let { id } = await this.jwtService.verifyAsync(cookie);
+      const user = await this.usersService.findOne({ id });
+      console.log(user);
 
-    const user = await this.usersService.findOne({ id });
-
-    console.log(user);
-
-    if (!user) {
+      if (!user) {
+        return {
+          isAuthed: false,
+          username: null,
+          message: 'The jwt is not who you login it now',
+        };
+      }
+      return {
+        isAuthed: true,
+        username: user.username,
+        message: 'Yep, You are authed',
+      };
+    } catch (error) {
       return {
         isAuthed: false,
         username: null,
         message: 'The jwt is not who you login it now',
       };
     }
-
-    return {
-      isAuthed: true,
-      username: user.username,
-      message: 'Yep, You are authed',
-    };
   }
 }
