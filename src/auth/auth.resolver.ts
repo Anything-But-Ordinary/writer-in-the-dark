@@ -13,6 +13,7 @@ import {
   HttpException,
   NotFoundException,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import { LoginInput, LoginResponse } from './dtos/login.dto';
 import { JwtService } from '@nestjs/jwt';
@@ -20,6 +21,8 @@ import { Response, response, Request } from 'express';
 import { MyContext } from '../types';
 import { User } from '../models/user.model';
 import { WhoResponse } from './dtos/who.dto';
+import { LogoutResponse } from './dtos/logout.dto';
+import { AuthGuard } from './auth.guard';
 
 @Resolver()
 export class AuthResolver {
@@ -89,6 +92,7 @@ export class AuthResolver {
     };
   }
 
+  @UseGuards(AuthGuard)
   @Mutation(() => WhoResponse)
   async user(@Context('req') req: Request): Promise<WhoResponse> {
     const cookie = req.cookies['jwt'];
@@ -123,6 +127,24 @@ export class AuthResolver {
         isAuthed: false,
         username: null,
         message: 'The jwt is not who you login it now',
+      };
+    }
+  }
+
+  @UseGuards(AuthGuard)
+  @Mutation(() => LogoutResponse)
+  async logout(@Context('res') res: Response): Promise<LogoutResponse> {
+    try {
+      res.clearCookie('jwt');
+
+      return {
+        isLogout: true,
+        message: 'Successfully Logout',
+      };
+    } catch (error) {
+      return {
+        isLogout: false,
+        message: 'Something is wrong',
       };
     }
   }
