@@ -23,6 +23,7 @@ import { User } from '../models/user.model';
 import { WhoResponse } from './dtos/who.dto';
 import { LogoutResponse } from './dtos/logout.dto';
 import { AuthGuard } from './auth.guard';
+import { UserInfoInput, UserInfoResponse } from './dtos/userInfoResponse.dto';
 
 @Resolver()
 export class AuthResolver {
@@ -145,6 +146,40 @@ export class AuthResolver {
       return {
         isLogout: false,
         message: 'Something is wrong',
+      };
+    }
+  }
+
+  @UseGuards(AuthGuard)
+  @Mutation(() => UserInfoResponse)
+  async updateUserInfo(
+    @Args('input') userInfoInput: UserInfoInput,
+    @Context('req') req: Request,
+  ): Promise<UserInfoResponse> {
+    try {
+      const cookie = req.cookies['jwt'];
+
+      const { id } = await this.jwtService.verifyAsync(cookie);
+
+      await this.usersService.update(id, userInfoInput);
+
+      const user = this.usersService.findOne({ id });
+
+      if (!user) {
+        return {
+          message: 'user is not found',
+          updated: false,
+        };
+      }
+
+      return {
+        message: 'updated successfully',
+        updated: true,
+      };
+    } catch (error) {
+      return {
+        message: 'Something is wrong',
+        updated: false,
       };
     }
   }
