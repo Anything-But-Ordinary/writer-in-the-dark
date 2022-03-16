@@ -24,6 +24,10 @@ import { WhoResponse } from './dtos/who.dto';
 import { LogoutResponse } from './dtos/logout.dto';
 import { AuthGuard } from './auth.guard';
 import { UserInfoInput, UserInfoResponse } from './dtos/userInfoResponse.dto';
+import {
+  UpdatePasswordInput,
+  UpdatePasswordResponse,
+} from './dtos/updatePassword.dto';
 
 @Resolver()
 export class AuthResolver {
@@ -134,10 +138,15 @@ export class AuthResolver {
 
   @UseGuards(AuthGuard)
   @Mutation(() => LogoutResponse)
-  async logout(@Context('res') res: Response): Promise<LogoutResponse> {
+  async logout(
+    @Context('res') res: Response,
+    @Context('req') req: Request,
+  ): Promise<LogoutResponse> {
     try {
       res.clearCookie('jwt');
-
+      req.cookies['jwt'] = undefined;
+      // there is something wrong,I guess is token thing, you cann't login more than one user
+      // console.log(req.cookies['jwt']);
       return {
         isLogout: true,
         message: 'Successfully Logout',
@@ -174,6 +183,36 @@ export class AuthResolver {
 
       return {
         message: 'updated successfully',
+        updated: true,
+      };
+    } catch (error) {
+      return {
+        message: 'Something is wrong',
+        updated: false,
+      };
+    }
+  }
+
+  @UseGuards(AuthGuard)
+  @Mutation(() => UpdatePasswordResponse)
+  async updatePassword(
+    @Args('input') updatePasswordInput: UpdatePasswordInput,
+    @Context('req') req: Request,
+  ): Promise<UpdatePasswordResponse> {
+    if (updatePasswordInput.password !== updatePasswordInput.password_confirm) {
+      throw new BadRequestException('Password not match');
+    }
+
+    try {
+      const cookie = req.cookies['jwt'];
+
+      const { id } = await this.jwtService.verifyAsync(cookie);
+
+      await this.usersService.update(id, {
+        password: await bcrypt.hash(updatePasswordInput.password, 12),
+      });
+      return {
+        message: 'password is updated',
         updated: true,
       };
     } catch (error) {
