@@ -82,7 +82,7 @@ export class AuthResolver {
     }
 
     const jwt = await this.jwtService.signAsync({
-      id: user.id,
+      _id: user._id,
     });
 
     res.cookie('jwt', jwt, {
@@ -111,8 +111,8 @@ export class AuthResolver {
     }
 
     try {
-      let { id } = await this.jwtService.verifyAsync(cookie);
-      const user = await this.usersService.findOne({ id });
+      let { _id } = await this.jwtService.verifyAsync(cookie);
+      const user = await this.usersService.findOne({ _id });
       console.log(user);
 
       if (!user) {
@@ -144,9 +144,7 @@ export class AuthResolver {
   ): Promise<LogoutResponse> {
     try {
       res.clearCookie('jwt');
-      req.cookies['jwt'] = undefined;
-      // there is something wrong,I guess is token thing, you cann't login more than one user
-      // console.log(req.cookies['jwt']);
+      req.cookies['jwt'] = null;
       return {
         isLogout: true,
         message: 'Successfully Logout',
@@ -168,11 +166,11 @@ export class AuthResolver {
     try {
       const cookie = req.cookies['jwt'];
 
-      const { id } = await this.jwtService.verifyAsync(cookie);
+      const { _id } = await this.jwtService.verifyAsync(cookie);
 
-      await this.usersService.update(id, userInfoInput);
+      await this.usersService.update(_id, userInfoInput);
 
-      const user = this.usersService.findOne({ id });
+      const user = this.usersService.findOne({ _id });
 
       if (!user) {
         return {
@@ -206,9 +204,9 @@ export class AuthResolver {
     try {
       const cookie = req.cookies['jwt'];
 
-      const { id } = await this.jwtService.verifyAsync(cookie);
+      const { _id } = await this.jwtService.verifyAsync(cookie);
 
-      await this.usersService.update(id, {
+      await this.usersService.update(_id, {
         password: await bcrypt.hash(updatePasswordInput.password, 12),
       });
       return {
