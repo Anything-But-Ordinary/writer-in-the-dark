@@ -3,6 +3,7 @@ import {
   Context,
   GqlExecutionContext,
   Mutation,
+  Query,
   Resolver,
 } from '@nestjs/graphql';
 import { UsersService } from '../users/users.service';
@@ -28,6 +29,7 @@ import {
   UpdatePasswordInput,
   UpdatePasswordResponse,
 } from './dtos/updatePassword.dto';
+import { MeQueryResponse } from './dtos/me.dto';
 
 @Resolver()
 export class AuthResolver {
@@ -218,6 +220,27 @@ export class AuthResolver {
         message: 'Something is wrong',
         updated: false,
       };
+    }
+  }
+
+  // @UseGuards(AuthGuard)
+  @Query(() => MeQueryResponse, { nullable: true })
+  async me(@Context('req') req: Request): Promise<MeQueryResponse | null> {
+    try {
+      const cookie = req.cookies['jwt'];
+      const { _id } = await this.jwtService.verifyAsync(cookie);
+      const user = await this.usersService.findOne({ _id });
+      if (!user) {
+        return null;
+      }
+      console.log(user);
+      return {
+        email: user.email,
+        username: user.username,
+      };
+    } catch (error) {
+      console.log('me query error:', error);
+      throw Error(error.message);
     }
   }
 }
