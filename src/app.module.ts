@@ -18,6 +18,7 @@ import { response } from 'express';
       driver: ApolloDriver,
       autoSchemaFile: true,
       context: ({ req, res }) => ({ req, res }),
+      cors: false,
       // fieldResolverEnhancers: ['guards'],
     }),
     UsersModule,
